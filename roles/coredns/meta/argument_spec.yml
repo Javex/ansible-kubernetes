@@ -1,0 +1,42 @@
+argument_specs:
+  main:
+    short_description: Install CoreDNS on Kubernetes cluster
+    options:
+      coredns_cluster_ip:
+        required: true
+        type: str
+        description: The IP for the control node. Must the same that Talos uses.
+
+      coredns_dns_ip:
+        type: str
+        required: true
+        description: >
+          The fixed IP for the DNS server, should be one of the three passed to
+          metalLB as dns-ips.
+
+      coredns_cluster_domain_external:
+        type: str
+        required: true
+        description: >
+          A domain under which all services on this cluser can be hosted. This
+          creates a wildcard subdomain resolver: Any subdomain of this domain
+          will be resolved to the traefik load balancer CNAME and so will point
+          at the IP for traefik on this cluster. As long as any HTTPRoute on
+          traefik services then specifies this host, there is no need to set up
+          extra DNS records. However, any internal DNS server must delegate
+          resolution of this subdomain to `coredns_dns_ip` which will take care
+          of the rest.
+
+      coredns_cluster_domain_internal:
+        type: str
+        required: true
+        description: >
+          The internal domain for the cluster. Delegate resolution of this
+          domain to `coredns_dns_ip` and it will resolve any service with a
+          public IP under this subdomain. This needs to be different from
+          `coredns_cluster_domain_external`. For the most part, this only serves
+          the purpose of providing DNS resolution for traefik. If this domain
+          is "example.com" then "traefik.traefik.example.com" will resolve to
+          its public IP. Kubernetes DNS structure is "<service>.<namespace>.<domain>".
+          This can also be used for any non-traefik services that get their own
+          IP from the load balancer.

@@ -1,0 +1,10 @@
+- name: Include setup step
+  ansible.builtin.include_role:
+    name: javex.kubernetes.talos
+    tasks_from: setup.yml
+
+- name: Install block
+  environment: "{{ kubernetes_env_vars }}"
+  block:
+    - name: Include installation steps
+      ansible.builtin.include_tasks: install.yml
