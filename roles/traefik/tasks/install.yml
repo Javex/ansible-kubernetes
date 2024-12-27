@@ -1,0 +1,16 @@
+- name: Add traefik Helm repo
+  kubernetes.core.helm_repository:
+    name: traefik
+    repo_url: https://traefik.github.io/charts
+
+- name: Install traefik from Helm chart
+  kubernetes.core.helm:
+    name: traefik
+    chart_ref: traefik/traefik
+    release_namespace: traefik
+    create_namespace: true
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+
+- name: Add Certificate resource for traefik to terminate TLS
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'certificate.yaml.j2') | from_yaml }}"
