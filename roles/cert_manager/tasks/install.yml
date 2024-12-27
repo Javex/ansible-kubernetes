@@ -1,0 +1,29 @@
+- name: Add jetstack Helm repo
+  kubernetes.core.helm_repository:
+    name: jetstack
+    repo_url: https://charts.jetstack.io
+
+- name: Install cert-manager from Helm chart
+  kubernetes.core.helm:
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    release_namespace: cert-manager
+    create_namespace: true
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+
+- name: Encode Cloudflare API token to base64
+  ansible.builtin.set_fact:
+    cloudflare_token_b64: "{{ cert_manager_cloudflare_api_token | b64encode }}"
+
+- name: Configure Cloudflare API token for DNS01 challenge
+  kubernetes.core.k8s:
+    validate:
+      fail_on_error: true
+    template: secret.cloudflare-api-token.yaml.j2
+
+- name: Create ClusterIssuer
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', item) }}"
+  loop:
+    - cluster-issuer-letsencrypt-staging.yaml.j2
+    - cluster-issuer-letsencrypt-production.yaml.j2
