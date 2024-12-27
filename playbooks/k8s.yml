@@ -1,0 +1,24 @@
+---
+- name: Create kubernetes cluster
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: javex.kubernetes.metallb
+      tags: metallb
+      vars:
+        metallb_dns_ips: "{{ dns_ips }}"
+
+    - role: javex.kubernetes.coredns
+      tags: coredns
+      vars:
+        coredns_cluster_ip: "{{ cluster_ip }}"
+        coredns_dns_ip: "{{ dns_ips[0] }}"
+
+    - role: javex.kubernetes.cert_manager
+      tags: cert_manager
+
+    - role: javex.kubernetes.traefik
+      tags: traefik
+
+    - role: javex.kubernetes.kubernetes_dashboard
+      tags: kubernetes_dashboard
