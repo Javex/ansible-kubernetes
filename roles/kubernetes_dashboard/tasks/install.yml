@@ -1,0 +1,21 @@
+- name: Add kubernetes-dashboard Helm repo
+  kubernetes.core.helm_repository:
+    name: kubernetes-dashboard
+    repo_url: https://kubernetes.github.io/dashboard/
+
+- name: Install kubernetes-dashboard from Helm chart
+  kubernetes.core.helm:
+    name: kubernetes-dashboard
+    chart_ref: kubernetes-dashboard/kubernetes-dashboard
+    release_namespace: kubernetes-dashboard
+    create_namespace: true
+
+- name: Add admin user
+  kubernetes.core.k8s:
+    validate:
+      fail_on_error: true
+    definition: "{{ lookup('file', 'adminuser.yaml') | from_yaml_all }}"
+
+- name: Add HTTPRoute to dashboard
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'httproute.yaml.j2') | from_yaml }}"
