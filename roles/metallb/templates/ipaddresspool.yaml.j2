@@ -1,0 +1,21 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: local-ips
+  namespace: metallb-system
+spec:
+  addresses:
+  - {{ metallb_loadbalancer_ips }}
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: dns-ips
+  namespace: metallb-system
+spec:
+  # IP addresses reserved just for DNS servers
+  addresses:
+  {% for ip_addr in metallb_dns_ips %}
+  - {{ ip_addr }}/32
+  {% endfor -%}
+  autoAssign: false

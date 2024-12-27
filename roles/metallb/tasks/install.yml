@@ -1,0 +1,16 @@
+- name: Create base resources from manifest
+  kubernetes.core.k8s:
+    validate:
+      fail_on_error: true
+    definition: "{{ lookup('file', 'manifest.yaml') | from_yaml_all }}"
+
+- name: Create IPAddressPool
+  kubernetes.core.k8s:
+    template: ipaddresspool.yaml.j2
+  # Takes some time to create the CRDs, so retry
+  retries: 5
+  delay: 3
+
+- name: Create L2Advertisement
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'l2advertisement.yaml') | from_yaml }}"
