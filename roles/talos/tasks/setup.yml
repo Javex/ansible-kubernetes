@@ -1,0 +1,10 @@
+- name: Create a directory to hold all files for this run
+  ansible.builtin.file:
+    state: directory
+    path: "{{ talos_tmp_base_path }}/talos"
+  register: talos_tmp_path
+
+- name: Export path to kubeconfig
+  ansible.builtin.set_fact:
+    kubernetes_env_vars:
+      K8S_AUTH_KUBECONFIG: "{{ talos_tmp_path.path }}/kubeconfig"

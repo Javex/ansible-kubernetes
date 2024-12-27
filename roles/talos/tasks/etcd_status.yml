@@ -1,0 +1,17 @@
+- name: Get etcd service status
+  ansible.builtin.command:
+    chdir: "{{ talos_tmp_path.path }}"
+    cmd: >
+      ./talosctl
+      --talosconfig talosconfig
+      --nodes {{ hostvars[talos_vm_name].ansible_host }}
+      service
+      etcd
+  register: talos_etcd_status_cmd
+  changed_when: false
+  retries: 12
+  delay: 10
+
+- name: Determine etcd status
+  ansible.builtin.set_fact:
+    talos_etcd_status: "{{ talos_etcd_status_cmd.stdout_lines | select('search', '^STATE\\s+') | first | split | last }}"

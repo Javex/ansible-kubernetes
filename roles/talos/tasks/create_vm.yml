@@ -1,0 +1,61 @@
+- name: Create VM on Proxmox
+  community.general.proxmox_kvm:
+    node: "{{ talos_proxmox_node }}"
+    api_user: "{{ talos_proxmox_user }}"
+    api_token_id: "{{ talos_proxmox_token_id }}"
+    api_token_secret: "{{ talos_proxmox_token_secret }}"
+    api_host: "{{ talos_proxmox_host }}"
+    vmid: "{{ talos_vm_id }}"
+    name: "{{ talos_vm_name }}"
+    agent: true  # Use QEMU guest agent
+    memory: 4096
+    cpu: "{{ talos_vm_cpu }}"
+    ostype: l26  # Linux 2.6 kernel
+    cores: 2
+    onboot: true  # Start on PVE boot
+    ide:
+      ide0: "local:iso/talos-metal-amd64.iso,media=cdrom"
+    scsi:
+      scsi0: "local-zfs:20,iothread=1"
+      scsi1: "local-zfs:100,iothread=1"
+    scsihw: virtio-scsi-single
+    net:
+      net0: virtio,bridge=vmbr0
+    state: present
+    # Talos doesn't support ballooning
+    balloon: 0
+    # TODO: Make tags dynamic based on node role
+    tags:
+      - k8s
+      - prod
+      - controller
+
+- name: Start the VM
+  community.general.proxmox_kvm:
+    api_user: "{{ talos_proxmox_user }}"
+    api_token_id: "{{ talos_proxmox_token_id }}"
+    api_token_secret: "{{ talos_proxmox_token_secret }}"
+    api_host: "{{ talos_proxmox_host }}"
+    vmid: "{{ talos_vm_id }}"
+    state: started
+
+# If the VM was already running when the playbook started then the IP is
+# already in the inventory and we don't need to refresh it. Speeds things
+# up.
+- name: Check if we already have VM in inventory
+  ansible.builtin.set_fact:
+    talos_node_in_inventory: "{{ hostvars[talos_vm_name] is defined and hostvars[talos_vm_name].ansible_host != '' }}"
+
+- name: Wait for talos node to get an IP
+  ansible.builtin.command: >
+    ansible-inventory --host {{ talos_vm_name }}
+  register: nodecheck
+  changed_when: false
+  until: >
+    (nodecheck.stdout | from_json).ansible_host
+  retries: 12
+  delay: 10
+  when: not talos_node_in_inventory
+
+- name: Trigger inventory refresh
+  ansible.builtin.meta: refresh_inventory

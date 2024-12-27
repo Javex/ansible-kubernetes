@@ -1,0 +1,10 @@
+- name: Install talosctl from github
+  install_from_github:
+    repo: siderolabs/talos
+    tag: "{{ talos_ctl_version }}"
+    version_command: "{{ talos_tmp_path.path }}/talosctl version --client --short"
+    asset_regex: ^talosctl-linux-amd64$
+    move_rules:
+      - src_regex: ^talosctl-linux-amd64$
+        dst: "{{ talos_tmp_path.path }}/talosctl"
+        mode: "0755"

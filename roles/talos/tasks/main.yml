@@ -1,0 +1,14 @@
+- name: Include tasks to create & start VM
+  ansible.builtin.include_tasks: create_vm.yml
+
+- name: Prepare variables & directories
+  ansible.builtin.include_tasks: setup.yml
+
+- name: Ensure talosctl is available
+  ansible.builtin.include_tasks: talosctl.yml
+
+- name: Include tasks to bootstrap talos
+  ansible.builtin.include_tasks: talos_bootstrap.yml
+
+- name: Include tasks to bootstrap etcd & setup kubernetes cluster
+  ansible.builtin.include_tasks: kubernetes_bootstrap.yml
