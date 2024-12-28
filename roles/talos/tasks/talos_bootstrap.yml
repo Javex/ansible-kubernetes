@@ -1,6 +1,6 @@
 - name: Write secrets to file
   ansible.builtin.copy:
-    src: secrets.prod.enc.yaml
+    src: "{{ talos_secrets_file }}"
     dest: "{{ talos_tmp_path.path }}/secrets.prod.yaml"
     mode: "0600"
   # no_log: true

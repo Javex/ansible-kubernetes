@@ -71,12 +71,14 @@ Then create a playbook like this:
         owner: root
         group: root
         mode: "0644"
+  vars:
+    talos_image_id: ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talos_image_version: 1.8.4
+    talos_image_hash: sha256:c26ede0e7ffd578d79c7afb515b0eb7da5bb32b1a0e142813726473760faa060
 
-- name: Create kubernetes cluster
+- name: Prepare kubernetes cluster
   hosts: localhost
   gather_facts: false
-  vars:
-    cluster_ip: 10.96.0.10
 
   pre_tasks:
     - name: Determine current working directory
@@ -86,13 +88,12 @@ Then create a playbook like this:
     - name: Create temp path from cwd
       ansible.builtin.set_fact:
         tmp_path: "{{ pwd_cmd.stdout }}/tmp"
+        cwd: "{{ pwd_cmd.stdout }}"
 
-  roles:
-    - role: talos
-      tags: talos
-      vars:
-        talos_cluster_ip: "{{ cluster_ip }}"
-        talos_tmp_base_path: "{{ tmp_path }}"
+    - name: Include Proxmox login task to get facts with credentials
+      ansible.builtin.include_role:
+        name: proxmox
+        tasks_from: login.yaml
 
 - name: Include playbook for javex.kubernetes collection
   ansible.builtin.import_playbook: javex.kubernetes.k8s
@@ -112,6 +113,16 @@ Then create a playbook like this:
     # IBRS offers spectre protection
     talos_vm_cpu: SandyBridge-IBRS
     talos_tmp_base_path: "{{ tmp_path }}"
+    talos_proxmox_user: "{{ proxmox.user }}"
+    talos_proxmox_token_id: "{{ proxmox.token_id }}"
+    talos_proxmox_token_secret: "{{ proxmox.secret }}"
+    talos_proxmox_host: "{{ proxmox.host }}"
+    talos_ctl_version: v1.9.0
+    talos_cluster_name: homelab-prod
+    talos_secrets_file: "{{ cwd }}/files/talos/secrets.prod.enc.yaml"
+    talos_image_id: ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    talos_image_version: 1.8.4
+    talos_kubernetes_version: 1.31.4
 
     # MetalLB specific vars
     # Sharing space with local DHCP server that reserves .100-.255
