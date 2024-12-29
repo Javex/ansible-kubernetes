@@ -16,8 +16,8 @@
     ide:
       ide0: "local:iso/talos-metal-amd64.iso,media=cdrom"
     scsi:
-      scsi0: "local-zfs:20,iothread=1"
-      scsi1: "local-zfs:100,iothread=1"
+      scsi0: "local-zfs:20,iothread=1,discard=on"
+      scsi1: "local-zfs:100,iothread=1,discard=on"
     scsihw: virtio-scsi-single
     net:
       net0: virtio,bridge=vmbr0
