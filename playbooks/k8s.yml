@@ -7,6 +7,7 @@
       tags: talos
       vars:
         talos_cluster_ip: "{{ cluster_ip }}"
+        talos_parent_playbook_dir: "{{ parent_playbook_dir }}"
 
     - role: javex.kubernetes.metallb
       tags: metallb

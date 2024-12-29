@@ -47,8 +47,9 @@
     talos_node_in_inventory: "{{ hostvars[talos_vm_name] is defined and hostvars[talos_vm_name].ansible_host != '' }}"
 
 - name: Wait for talos node to get an IP
-  ansible.builtin.command: >
-    ansible-inventory --host {{ talos_vm_name }}
+  ansible.builtin.command:
+    chdir: "{{ talos_parent_playbook_dir }}"
+    cmd: ansible-inventory --host {{ talos_vm_name }}
   register: nodecheck
   changed_when: false
   until: >
