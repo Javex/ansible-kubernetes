@@ -5,8 +5,6 @@
 
 - name: Create namespace
   kubernetes.core.k8s:
-    validate:
-      fail_on_error: true
     definition: "{{ lookup('file', 'namespace.yaml') | from_yaml }}"
 
 - name: Install MetalLB from Helm chart

@@ -12,8 +12,6 @@
 
 - name: Add admin user
   kubernetes.core.k8s:
-    validate:
-      fail_on_error: true
     definition: "{{ lookup('file', 'adminuser.yaml') | from_yaml_all }}"
 
 - name: Add HTTPRoute to dashboard

@@ -17,8 +17,6 @@
 
 - name: Configure Cloudflare API token for DNS01 challenge
   kubernetes.core.k8s:
-    validate:
-      fail_on_error: true
     template: secret.cloudflare-api-token.yaml.j2
 
 - name: Create ClusterIssuer
