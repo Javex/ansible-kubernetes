@@ -50,6 +50,7 @@
       --file controlplane.yaml
   ignore_errors: true
   register: talos_apply_bootstrap
+  changed_when: false
 
 - name: Update talosconfig with node details
   ansible.builtin.command:
@@ -77,3 +78,4 @@
       --nodes {{ hostvars[talos_vm_name].ansible_host }}
       --file controlplane.yaml
   when: talos_apply_bootstrap.failed
+  changed_when: false
