@@ -5,9 +5,9 @@ machine:
       - {{ talos_cluster_ip }}
 
     extraMounts:
-      - destination: /var/openebs/local # Destination is the absolute path where the mount will be placed in the container.
+      - destination: /var/lib/longhorn # Destination is the absolute path where the mount will be placed in the container.
         type: bind # Type specifies the mount kind.
-        source: /var/openebs/local # Source specifies the source path of the mount.
+        source: /var/lib/longhorn # Source specifies the source path of the mount.
         # Options are fstab style mount options.
         options:
           - bind
@@ -24,7 +24,7 @@ machine:
     - device: /dev/sdb # The name of the disk to use.
       # A list of partitions to create on the disk.
       partitions:
-        - mountpoint: /var/openebs/local # Where to mount the partition.
+        - mountpoint: /var/lib/longhorn # Where to mount the partition.
 
   network:
     hostname: {{ talos_vm_name }}
