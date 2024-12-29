@@ -1,8 +1,19 @@
-- name: Create base resources from manifest
+- name: Add MetalLB Helm repo
+  kubernetes.core.helm_repository:
+    name: metallb
+    repo_url: https://metallb.github.io/metallb
+
+- name: Create namespace
   kubernetes.core.k8s:
     validate:
       fail_on_error: true
-    definition: "{{ lookup('file', 'manifest.yaml') | from_yaml_all }}"
+    definition: "{{ lookup('file', 'namespace.yaml') | from_yaml }}"
+
+- name: Install MetalLB from Helm chart
+  kubernetes.core.helm:
+    name: metallb
+    chart_ref: metallb/metallb
+    release_namespace: metallb-system
 
 - name: Create IPAddressPool
   kubernetes.core.k8s:
