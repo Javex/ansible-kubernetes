@@ -26,6 +26,9 @@ machine:
       partitions:
         - mountpoint: /var/openebs/local # Where to mount the partition.
 
+  network:
+    hostname: {{ talos_vm_name }}
+
 
 cluster:
   # Disable coreDNS because it's configured manually later
