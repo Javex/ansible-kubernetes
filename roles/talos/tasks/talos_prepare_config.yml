@@ -3,7 +3,7 @@
     src: "{{ talos_secrets_file }}"
     dest: "{{ talos_tmp_path.path }}/secrets.prod.yaml"
     mode: "0600"
-  # no_log: true
+  no_log: true
 
 - name: Copy config patch
   ansible.builtin.template:
