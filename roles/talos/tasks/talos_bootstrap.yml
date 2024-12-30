@@ -1,43 +1,3 @@
-- name: Write secrets to file
-  ansible.builtin.copy:
-    src: "{{ talos_secrets_file }}"
-    dest: "{{ talos_tmp_path.path }}/secrets.prod.yaml"
-    mode: "0600"
-  # no_log: true
-
-- name: Copy config patch
-  ansible.builtin.template:
-    src: config.patch.yaml.j2
-    dest: "{{ talos_tmp_path.path }}/config.patch.yaml"
-
-- name: Generate config from secrets file
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      ./talosctl
-      gen
-      config
-      --with-secrets secrets.prod.yaml
-      --config-patch-control-plane @config.patch.yaml
-      --output .
-      --install-image  factory.talos.dev/installer/{{ talos_image_id }}:v{{ talos_image_version }}
-      --talos-version {{ talos_image_version }}
-      --kubernetes-version {{ talos_kubernetes_version }}
-      --force
-      {{ talos_cluster_name }}
-      https://{{ hostvars[talos_vm_name].ansible_host }}:6443
-  changed_when: false
-
-- name: Validate config
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      ./talosctl
-      --config controlplane.yaml
-      validate
-      --mode metal
-  changed_when: false
-
 # Talos bootstrapping command that might fail if the node is already set up
 - name: Apply config file
   ansible.builtin.command:
@@ -50,20 +10,6 @@
       --file controlplane.yaml
   ignore_errors: true
   register: talos_apply_bootstrap
-  changed_when: false
-
-- name: Update talosconfig with node details
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      ./talosctl
-      --talosconfig talosconfig
-      config
-      {{ item }}
-      {{ hostvars[talos_vm_name].ansible_host }}
-  loop:
-    - endpoint
-    - node
   changed_when: false
 
 # Apply config only when not bootstrapping, i.e. the insecure version above
