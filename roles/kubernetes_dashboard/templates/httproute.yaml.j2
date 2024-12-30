@@ -8,7 +8,9 @@ spec:
     - name: traefik-gateway
       namespace: traefik
   hostnames:
-    - {{ kubernetes_dashboard_hostname }}
+  {% for hostname in kubernetes_dashboard_hostnames %}
+    - {{ hostname }}
+  {% endfor -%}
   rules:
     - matches:
         - path:

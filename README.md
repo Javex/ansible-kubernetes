@@ -146,7 +146,8 @@ Then create a playbook like this:
       - "*.example.com"
 
     # kubernetes dashboars specific vars
-    kubernetes_dashboard_hostname: k8s-dashboard.example.com 
+    kubernetes_dashboard_hostnames:
+      - k8s-dashboard.example.com
 ```
 
 Now run the playbook:
