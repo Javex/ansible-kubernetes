@@ -28,6 +28,3 @@
 
     - role: javex.kubernetes.longhorn
       tags: longhorn
-
-    - role: javex.kubernetes.kubernetes_dashboard
-      tags: kubernetes_dashboard
