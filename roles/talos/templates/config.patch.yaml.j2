@@ -37,3 +37,9 @@ cluster:
     
   # Allows running workload on control-plane nodes.
   allowSchedulingOnControlPlanes: true
+
+  apiServer:
+    extraArgs:
+      oidc-issuer-url: {{ talos_oidc_issuer_url }}
+      oidc-client-id: {{ talos_oidc_client_id }}
+      oidc-groups-claim: {{ talos_oidc_groups_claim }}

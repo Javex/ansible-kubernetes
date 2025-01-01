@@ -123,6 +123,12 @@ Then create a playbook like this:
     talos_image_id: ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
     talos_image_version: 1.8.4
     talos_kubernetes_version: 1.31.4
+    # Issuer URL as provided by IdP
+    talos_oidc_issuer_url: https://auth.example.com/application/o/kubernetes/
+    # Client ID (the contents of the "aud" claim)
+    talos_oidc_client_id: HbpLcSurg2G4OIQi7OneGiWfa0JbPv9rM8TWBGTA
+    # Name of claim in JWT for groups
+    talos_oidc_groups_claim: groups
 
     # MetalLB specific vars
     # Sharing space with local DHCP server that reserves .100-.255
