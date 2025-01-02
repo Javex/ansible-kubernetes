@@ -25,7 +25,7 @@
       --kubernetes-version {{ talos_kubernetes_version }}
       --force
       {{ talos_cluster_name }}
-      https://{{ hostvars[talos_vm_name].ansible_host }}:6443
+      https://{{ ansible_host }}:6443
   changed_when: false
 
 - name: Validate config
@@ -46,7 +46,7 @@
       --talosconfig talosconfig
       config
       {{ item }}
-      {{ hostvars[talos_vm_name].ansible_host }}
+      {{ ansible_host }}
   loop:
     - endpoint
     - node

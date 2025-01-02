@@ -6,7 +6,7 @@
       ./talosctl
       apply-config
       --insecure
-      --nodes {{ hostvars[talos_vm_name].ansible_host }}
+      --nodes {{ ansible_host }}
       --file controlplane.yaml
   ignore_errors: true
   register: talos_apply_bootstrap
@@ -21,7 +21,7 @@
       ./talosctl
       --talosconfig talosconfig
       apply-config
-      --nodes {{ hostvars[talos_vm_name].ansible_host }}
+      --nodes {{ ansible_host }}
       --file controlplane.yaml
   when: talos_apply_bootstrap.failed
   changed_when: false

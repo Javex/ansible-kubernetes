@@ -1,0 +1,48 @@
+plugin: community.general.proxmox
+url: https://pve.example.com:8006
+user: ansible@pam
+token_id: playbook
+token_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  39313...930
+
+# Needed for filtering and composing, e.g. getting tags
+want_facts: true
+
+# Nodes are currently in static inventory, so don't fetch them again
+# If changing this, pay attention to the "want_proxmox_nodes_ansible_host"
+# option.
+exclude_nodes: true
+
+# It's better to fail to enforce well-written expressions in filters etc. If it
+# fails we can fix it.
+strict: true
+
+# At the moment only the below VMs are managed via dynamic inventory, the rest
+# is managed statically.
+# If these filters are made more broadly, update the ansible_connection below:
+# Only Talos doesn't allow SSH, that's why it uses a local connection.
+filters:
+  - '"k8s" in (proxmox_tags_parsed|default([]))'
+
+keyed_groups:
+  - key: proxmox_tags_parsed
+    separator: ""
+
+compose:
+  # Double quote necessary because it's a Jinja expression and the first quotes
+  # get removed by the YAML parser.
+  # Also note that this needs to be more dynamic if the filters above are made
+  # more broadly.
+  ansible_connection: "'local'"
+  # Set the subnet range below to whatever you're locally using to connect to
+  # Talos.
+  ansible_host: >
+    proxmox_agent_interfaces |
+    default([]) |
+    map(attribute="ip-addresses") |
+    flatten |
+    ansible.utils.ipaddr('192.168.1.0/24') |
+    ansible.utils.ipaddr('address') |
+    first |
+    default()

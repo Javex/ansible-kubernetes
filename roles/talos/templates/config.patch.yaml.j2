@@ -27,7 +27,7 @@ machine:
         - mountpoint: /var/lib/longhorn # Where to mount the partition.
 
   network:
-    hostname: {{ talos_vm_name }}
+    hostname: {{ inventory_hostname }}
 
 
 cluster:

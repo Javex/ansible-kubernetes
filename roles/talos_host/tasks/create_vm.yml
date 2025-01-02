@@ -1,15 +1,15 @@
 - name: Create VM on Proxmox
   community.general.proxmox_kvm:
-    node: "{{ talos_proxmox_node }}"
-    api_user: "{{ talos_proxmox_user }}"
-    api_token_id: "{{ talos_proxmox_token_id }}"
-    api_token_secret: "{{ talos_proxmox_token_secret }}"
-    api_host: "{{ talos_proxmox_host }}"
-    vmid: "{{ talos_vm_id }}"
-    name: "{{ talos_vm_name }}"
+    node: "{{ talos_host_proxmox_node }}"
+    api_user: "{{ talos_host_proxmox_user }}"
+    api_token_id: "{{ talos_host_proxmox_token_id }}"
+    api_token_secret: "{{ talos_host_proxmox_token_secret }}"
+    api_host: "{{ talos_host_proxmox_host }}"
+    vmid: "{{ talos_host_vm_id }}"
+    name: "{{ talos_host_vm_name }}"
     agent: true  # Use QEMU guest agent
     memory: 4096
-    cpu: "{{ talos_vm_cpu }}"
+    cpu: "{{ talos_host_vm_cpu }}"
     ostype: l26  # Linux 2.6 kernel
     cores: 2
     onboot: true  # Start on PVE boot
@@ -32,11 +32,11 @@
 
 - name: Start the VM
   community.general.proxmox_kvm:
-    api_user: "{{ talos_proxmox_user }}"
-    api_token_id: "{{ talos_proxmox_token_id }}"
-    api_token_secret: "{{ talos_proxmox_token_secret }}"
-    api_host: "{{ talos_proxmox_host }}"
-    vmid: "{{ talos_vm_id }}"
+    api_user: "{{ talos_host_proxmox_user }}"
+    api_token_id: "{{ talos_host_proxmox_token_id }}"
+    api_token_secret: "{{ talos_host_proxmox_token_secret }}"
+    api_host: "{{ talos_host_proxmox_host }}"
+    vmid: "{{ talos_host_vm_id }}"
     state: started
 
 # If the VM was already running when the playbook started then the IP is
@@ -44,19 +44,18 @@
 # up.
 - name: Check if we already have VM in inventory
   ansible.builtin.set_fact:
-    talos_node_in_inventory: "{{ hostvars[talos_vm_name] is defined and hostvars[talos_vm_name].ansible_host != '' }}"
+    talos_host_node_in_inventory: "{{ hostvars[talos_host_vm_name] is defined and hostvars[talos_host_vm_name].ansible_host != '' }}"
 
 - name: Wait for talos node to get an IP
   ansible.builtin.command:
-    chdir: "{{ talos_parent_playbook_dir }}"
-    cmd: ansible-inventory --host {{ talos_vm_name }}
+    cmd: ansible-inventory --host {{ talos_host_vm_name }}
   register: nodecheck
   changed_when: false
   until: >
     (nodecheck.stdout | from_json).ansible_host
   retries: 12
   delay: 10
-  when: not talos_node_in_inventory
+  when: not talos_host_node_in_inventory
 
 - name: Trigger inventory refresh
   ansible.builtin.meta: refresh_inventory

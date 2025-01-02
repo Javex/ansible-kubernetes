@@ -4,7 +4,7 @@
     cmd: >
       ./talosctl
       --talosconfig talosconfig
-      --nodes {{ hostvars[talos_vm_name].ansible_host }}
+      --nodes {{ ansible_host }}
       service
       etcd
   register: talos_etcd_status_cmd

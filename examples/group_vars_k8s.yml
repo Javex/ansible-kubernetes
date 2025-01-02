@@ -1,0 +1,82 @@
+# This file should be in group_vars/k8s.yml in your playbook
+
+# Vars used in multiple roles
+# IP used for your control node internally.
+cluster_ip: 10.96.0.10
+# This is a list of IPs where you want the k8s DNS servers to appear. This
+# should be a fixed list, because you might want to delegate DNS resolution
+# for your internal & external subdomains (below) to them.
+dns_ips:
+  - 192.168.1.X
+  - 192.168.1.Y
+  - 192.168.1.Z
+
+#
+# Talos
+#
+talos_cluster_ip: "{{ cluster_ip }}"
+talos_ctl_version: v1.9.0
+talos_image_id: 88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b
+talos_image_version: 1.8.4
+talos_kubernetes_version: 1.31.4
+talos_cluster_name: my-cluster
+# IdP-provided issuer URL
+talos_oidc_issuer_url: https://auth.example.com/application/o/k8s-prod/
+# Client ID is the "aud" value of the claims in a JWT from the issuer
+talos_oidc_client_id: client ID
+# The name of the claim that contains a list of groups a user belongs to
+talos_oidc_groups_claim: groups
+
+# Will put talos & kube config under this directory
+talos_tmp_base_path: "{{ tmp_path }}"
+# Relative path to a file that contains the output of
+# talosctl gen secrets -o secrets.prod.enc.yaml
+# Make sure to encrypt it with ansible-vault after:
+# ansible-vault encrypt secrets.prod.enc.yaml
+talos_secrets_file: "secrets.prod.enc.yaml"
+
+#
+# MetalLB
+#
+# Sharing space with local DHCP server that reserves .100-.255
+# Plus lots of IPs already assigned below .60, but sparse
+# Can always list more IPs here as needed.
+metallb_loadbalancer_ips: 192.168.1.XX-192.168.1.YY
+metallb_dns_ips: "{{ dns_ips }}"
+
+#
+# CoreDNS
+#
+# This will resolve any k8s-internal DNS service if it has a public load
+# balancer IP from MetalLB. Useful as a CNAME target.
+coredns_cluster_domain_internal: "k8s.example.com"
+# This is a "public" domain, all subdomains will resolve to traefik so you don't
+# have to add individual DNS records.
+coredns_cluster_domain_external: "prod.example.com"
+coredns_cluster_ip: "{{ cluster_ip }}"
+coredns_dns_ip: "{{ dns_ips[0] }}"
+
+#
+# cert-manager
+#
+# Email for ACME to send notifications  to
+cert_manager_acme_email: "k8s-cert-manager@example.com"
+# Currently this playbook assumes using Cloudflare for DNS-01 cert validation
+# and requires the API token for that.
+cert_manager_cloudflare_api_token: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  616...6238
+
+#
+# Traefik
+#
+# Traefik will request certificates for these subdomains. Add more if you like.
+traefik_dns_names:
+  - "*.{{ coredns_cluster_domain_external }}"
+
+# We're using a local connection, but without this it won't use the virtualenv
+# we're running under. I tried setting this in the inventory file but got an
+# error I can't explain. Setting it here instead.
+# This just copies what Ansible would do by default when delegating:
+# https://docs.ansible.com/ansible/latest/inventory/implicit_localhost.html
+ansible_python_interpreter: "{{ ansible_playbook_python }}"

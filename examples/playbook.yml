@@ -1,0 +1,96 @@
+---
+- name: Download Talos image onto proxmox hosts
+  # Set this to whatever group you use for your Proxmox hosts
+  hosts: proxmox
+  become: true
+  pre_tasks:
+    - name: Download image
+      ansible.builtin.get_url:
+        url: https://factory.talos.dev/image/{{ talos_image_id }}/v{{ talos_image_version }}/metal-amd64.iso
+        dest: /var/lib/vz/template/iso/talos-metal-amd64.iso
+        checksum: "{{ talos_image_hash }}"
+        owner: root
+        group: root
+        mode: "0644"
+
+    # Replace this task with something that provides a dictionary of proxmox
+    # credentials, like this (or adjust the vars section below):
+    # proxmox:
+    #   user: ...
+    #   token_id: ...
+    #   secret: ...
+    #   host: ...
+    - name: Include Proxmox login task to get facts with credentials
+      tags: always
+      ansible.builtin.include_role:
+        name: proxmox
+        tasks_from: login.yaml
+
+  roles:
+    - role: javex.kubernetes.talos_host
+      tags: talos
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+  vars:
+    # Must match what's in group_vars/k8s.yml
+    # Unfortunately, currently specified in two places
+    talos_image_id: 88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b
+    talos_image_version: 1.8.4
+    talos_image_hash: sha256:c3ebd4105bfce92da0ca15a608fae526b39074ff8d11dfcc288d0673f46afaa8
+
+    # Talos specific vars
+    # Name of the VM and future hostname for the Node
+    talos_host_vm_name: talos-prod-control-1
+    # Which node to deploy the VM to
+    talos_host_proxmox_node: pve
+    # Fixed ID for the node in Proxmox
+    talos_host_vm_id: 201
+    # Change this if you like
+    talos_host_vm_cpu: SandyBridge-IBRS
+    # If you don't use a login task above, you can update these to the
+    # credentials right here. Remember that they are also specified in the
+    # inventory file.
+    talos_host_proxmox_user: "{{ proxmox.user }}"
+    talos_host_proxmox_token_id: "{{ proxmox.token_id }}"
+    talos_host_proxmox_token_secret: "{{ proxmox.secret }}"
+    talos_host_proxmox_host: "{{ proxmox.host }}"
+
+- name: Configure Talos nodes
+  hosts: k8s
+  # These hosts are Talos VMs that don't have SSH. Don't gather facts, as
+  # everything is delegated to localhost
+  gather_facts: false
+
+  pre_tasks:
+    - name: Determine current working directory
+      ansible.builtin.command: pwd
+      tags: always
+      register: pwd_cmd
+      changed_when: false
+
+    - name: Create temp path from cwd
+      tags: always
+      ansible.builtin.set_fact:
+        tmp_path: "{{ pwd_cmd.stdout }}/tmp"
+        cwd: "{{ pwd_cmd.stdout }}"
+
+  roles:
+    - role: javex.kubernetes.talos
+      tags: talos
+
+    - role: javex.kubernetes.metallb
+      tags: metallb
+
+    - role: javex.kubernetes.coredns
+      tags: coredns
+
+    - role: javex.kubernetes.cert_manager
+      tags: cert_manager
+
+    - role: javex.kubernetes.traefik
+      tags: traefik
+
+    - role: javex.kubernetes.longhorn
+      tags: longhorn
