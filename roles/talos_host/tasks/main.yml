@@ -1,2 +1,18 @@
-- name: Include tasks to create & start VM
+- name: Include tasks to create & start VM for control nodes
+  ansible.builtin.include_tasks: prepare_vars.yml
+  vars:
+    node_type: controller
+  loop: "{{ talos_host_nodes.controller }}"
+  loop_control:
+    index_var: idx
+
+- name: Include tasks to create & start VM for worker nodes
+  ansible.builtin.include_tasks: prepare_vars.yml
+  vars:
+    node_type: worker
+  loop: "{{ talos_host_nodes.worker }}"
+  loop_control:
+    index_var: idx
+
+- name: Include tasks to create VM
   ansible.builtin.include_tasks: create_vm.yml

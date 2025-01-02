@@ -1,16 +1,12 @@
 - name: Include task to determine etcd status
   ansible.builtin.include_tasks: etcd_status.yml
 
-# TODO: This command currently hard codes the node name. When setting up
-# clusters with more than one node I'd like to have a configuration that
-# determines which node is used for bootstrapping and only run this command
-# on that node.
 - name: Run bootstrap command
-  when: talos_etcd_status == 'Preparing'
+  when: talos_etcd_status == 'Preparing' and talos_is_bootstrap
   ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
+    chdir: "{{ talos_tmp_root.path }}"
     cmd: >
       ./talosctl
       --talosconfig talosconfig
-      --nodes {{ hostvars['talos-prod-control-1'].ansible_host }}
+      --nodes {{ ansible_host }}
       bootstrap

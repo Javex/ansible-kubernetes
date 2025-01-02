@@ -41,12 +41,13 @@
     talos_image_hash: sha256:c3ebd4105bfce92da0ca15a608fae526b39074ff8d11dfcc288d0673f46afaa8
 
     # Talos specific vars
-    # Name of the VM and future hostname for the Node
-    talos_host_vm_name: talos-prod-control-1
-    # Which node to deploy the VM to
-    talos_host_proxmox_node: pve
-    # Fixed ID for the node in Proxmox
-    talos_host_vm_id: 201
+    # Which nodes to create. You can list two types "contoller" and "worker".
+    # Provide "vm_id" and "proxmox_node" for each.
+    talos_host_nodes:
+      controller:
+        - vm_id: 202
+          proxmox_node: pve
+      worker: []
     # Change this if you like
     talos_host_vm_cpu: SandyBridge-IBRS
     # If you don't use a login task above, you can update these to the

@@ -1,0 +1,38 @@
+# If the name changes but the VM already exists, it will cause issues later and
+# the name should never be changed on an existing node.
+
+- name: Get VM name from VM ID
+  community.general.proxmox_vm_info:
+    api_user: "{{ talos_host_proxmox_user }}"
+    api_token_id: "{{ talos_host_proxmox_token_id }}"
+    api_token_secret: "{{ talos_host_proxmox_token_secret }}"
+    api_host: "{{ talos_host_proxmox_host }}"
+    vmid: "{{ item.vm_id }}"
+  register: vm_info
+  # It sometimes fails on the initial call
+  retries: 3
+
+- name: Ensure that VM name matches expectation
+  ansible.builtin.assert:
+    that:
+      - vm_info.proxmox_vms[0].name == item.name
+    success_msg: "VM has expected name {{ item.name }}"
+    fail_msg: "Expected name {{ item.name }}, but got {{ vm_info.proxmox_vms[0].name }}"
+
+# If the VM was already running when the playbook started then the IP is
+# already in the inventory and we don't need to refresh it. Speeds things
+# up.
+- name: Check if we already have VM in inventory
+  ansible.builtin.set_fact:
+    talos_host_node_in_inventory: "{{ hostvars[item.name] is defined and hostvars[item.name].ansible_host != '' }}"
+
+- name: Wait for talos node to get an IP
+  ansible.builtin.command:
+    cmd: ansible-inventory --host {{ item.name }}
+  register: nodecheck
+  changed_when: false
+  until: >
+    (nodecheck.stdout | from_json).ansible_host
+  retries: 12
+  delay: 10
+  when: not talos_host_node_in_inventory

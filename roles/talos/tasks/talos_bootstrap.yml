@@ -3,7 +3,7 @@
   ansible.builtin.command:
     chdir: "{{ talos_tmp_path.path }}"
     cmd: >
-      ./talosctl
+      {{ talos_tmp_root.path }}/talosctl
       apply-config
       --insecure
       --nodes {{ ansible_host }}
@@ -18,8 +18,8 @@
   ansible.builtin.command:
     chdir: "{{ talos_tmp_path.path }}"
     cmd: >
-      ./talosctl
-      --talosconfig talosconfig
+      {{ talos_tmp_root.path }}/talosctl
+      --talosconfig {{ talos_tmp_root.path }}/talosconfig
       apply-config
       --nodes {{ ansible_host }}
       --file controlplane.yaml
