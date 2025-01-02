@@ -1,19 +1,14 @@
 - name: Generate talosconfig from secrets file
   changed_when: false
-  when: talos_is_bootstrap
   ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
+    chdir: "{{ talos_tmp_root.path }}"
     cmd: >
-      {{ talos_tmp_root.path }}/talosctl
+      ./talosctl
       gen
       config
-      --with-secrets {{ talos_tmp_root.path }}/secrets.prod.yaml
-      --config-patch-control-plane @config.patch.yaml
+      --with-secrets secrets.prod.yaml
       --output-types talosconfig
-      --output {{ talos_tmp_root.path }}/talosconfig
-      --install-image  factory.talos.dev/installer/{{ talos_image_id }}:v{{ talos_image_version }}
-      --talos-version {{ talos_image_version }}
-      --kubernetes-version {{ talos_kubernetes_version }}
+      --output talosconfig
       --force
       {{ talos_cluster_name }}
       https://{{ ansible_host }}:6443
