@@ -7,8 +7,8 @@
 - name: Include tasks to prepare talos config file
   ansible.builtin.include_tasks: talos_prepare_config.yml
 
-- name: Include tasks to bootstrap talos
-  ansible.builtin.include_tasks: talos_bootstrap.yml
+- name: Include tasks to apply talos config
+  ansible.builtin.include_tasks: talos_apply_config.yml
 
 - name: Include tasks to bootstrap etcd & setup kubernetes cluster
   ansible.builtin.include_tasks: kubernetes_bootstrap.yml
