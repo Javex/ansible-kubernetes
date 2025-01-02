@@ -12,6 +12,7 @@
     name: metallb
     chart_ref: metallb/metallb
     release_namespace: metallb-system
+    wait: true
 
 - name: Create IPAddressPool
   kubernetes.core.k8s:
