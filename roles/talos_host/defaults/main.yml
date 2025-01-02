@@ -1,1 +1,7 @@
 talos_host_vm_name_prefix: talos-prod
+
+# Controller Defaults
+talos_host_controller_memory: 2048
+
+# Worker Defaults
+talos_host_worker_memory: 4096

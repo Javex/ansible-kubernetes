@@ -1,4 +1,5 @@
 - name: Install talosctl from github
+  run_once: true
   install_from_github:
     repo: siderolabs/talos
     tag: "{{ talos_ctl_version }}"

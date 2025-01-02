@@ -1,0 +1,38 @@
+- name: Set filename for config
+  ansible.builtin.set_fact:
+    talos_config_file: worker.yaml
+
+- name: Copy config patch
+  ansible.builtin.template:
+    src: worker.patch.yaml.j2
+    dest: "{{ talos_tmp_path.path }}/worker.patch.yaml"
+    mode: "0660"
+
+- name: Generate worker.yaml from secrets file
+  changed_when: false
+  ansible.builtin.command:
+    chdir: "{{ talos_tmp_path.path }}"
+    cmd: >
+      {{ talos_tmp_root.path }}/talosctl
+      gen
+      config
+      --with-secrets {{ talos_tmp_root.path }}/secrets.prod.yaml
+      --config-patch-worker @worker.patch.yaml
+      --output-types worker
+      --output {{ talos_config_file }}
+      --install-image  factory.talos.dev/installer/{{ talos_image_id }}:v{{ talos_image_version }}
+      --talos-version {{ talos_image_version }}
+      --kubernetes-version {{ talos_kubernetes_version }}
+      --force
+      {{ talos_cluster_name }}
+      https://{{ ansible_host }}:6443
+
+- name: Validate config
+  changed_when: false
+  ansible.builtin.command:
+    chdir: "{{ talos_tmp_path.path }}"
+    cmd: >
+      {{ talos_tmp_root.path }}/talosctl
+      --config {{ talos_config_file }}
+      validate
+      --mode metal

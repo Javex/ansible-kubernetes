@@ -1,84 +1,19 @@
 - name: Write secrets to file
   no_log: true
+  run_once: true
   ansible.builtin.copy:
     src: "{{ talos_secrets_file }}"
     dest: "{{ talos_tmp_root.path }}/secrets.prod.yaml"
     mode: "0600"
 
-- name: Copy config patch
-  ansible.builtin.template:
-    src: config.patch.yaml.j2
-    dest: "{{ talos_tmp_path.path }}/config.patch.yaml"
-
-- name: Generate controlplane.yaml from secrets file
-  when: talos_is_controller
-  changed_when: false
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      {{ talos_tmp_root.path }}/talosctl
-      gen
-      config
-      --with-secrets {{ talos_tmp_root.path }}/secrets.prod.yaml
-      --config-patch-control-plane @config.patch.yaml
-      --output-types controlplane
-      --output controlplane.yaml
-      --install-image  factory.talos.dev/installer/{{ talos_image_id }}:v{{ talos_image_version }}
-      --talos-version {{ talos_image_version }}
-      --kubernetes-version {{ talos_kubernetes_version }}
-      --force
-      {{ talos_cluster_name }}
-      https://{{ ansible_host }}:6443
-
-- name: Validate config
-  changed_when: false
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      {{ talos_tmp_root.path }}/talosctl
-      --config controlplane.yaml
-      validate
-      --mode metal
-
-- name: Generate talosconfig from secrets file
-  changed_when: false
+- name: Include tasks for talosconfig file
+  ansible.builtin.include_tasks: talosconfig.yml
   when: talos_is_bootstrap
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_path.path }}"
-    cmd: >
-      {{ talos_tmp_root.path }}/talosctl
-      gen
-      config
-      --with-secrets {{ talos_tmp_root.path }}/secrets.prod.yaml
-      --config-patch-control-plane @config.patch.yaml
-      --output-types talosconfig
-      --output {{ talos_tmp_root.path }}/talosconfig
-      --install-image  factory.talos.dev/installer/{{ talos_image_id }}:v{{ talos_image_version }}
-      --talos-version {{ talos_image_version }}
-      --kubernetes-version {{ talos_kubernetes_version }}
-      --force
-      {{ talos_cluster_name }}
-      https://{{ ansible_host }}:6443
 
-- name: Update talosconfig with node IP
-  changed_when: false
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_root.path }}"
-    cmd: >
-      {{ talos_tmp_root.path }}/talosctl
-      --talosconfig talosconfig
-      config
-      node
-      {{ ansible_host }}
-
-- name: Update talosconfig with endpoint IP for controllers
-  changed_when: false
+- name: Include tasks for control plane config
+  ansible.builtin.include_tasks: talos_prepare_controlplane.yml
   when: talos_is_controller
-  ansible.builtin.command:
-    chdir: "{{ talos_tmp_root.path }}"
-    cmd: >
-      {{ talos_tmp_root.path }}/talosctl
-      --talosconfig talosconfig
-      config
-      endpoint
-      {{ ansible_host }}
+
+- name: Include tasks for worker config
+  ansible.builtin.include_tasks: talos_prepare_worker.yml
+  when: not talos_is_controller

@@ -12,6 +12,8 @@
 
 - name: Include tasks to bootstrap etcd & setup kubernetes cluster
   ansible.builtin.include_tasks: kubernetes_bootstrap.yml
+  when: talos_is_bootstrap
 
 - name: Include tasks to prepare kubeconfig file
   ansible.builtin.include_tasks: kubernetes_kubeconfig.yml
+  when: talos_is_bootstrap

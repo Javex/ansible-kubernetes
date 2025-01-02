@@ -1,5 +1,8 @@
 - name: Prepare variables for VMs of type {{ node_type }}
   block:
+    - name: Include vars file
+      ansible.builtin.include_vars: "{{ node_type }}.yml"
+
     - name: Set facts to be added to list
       ansible.builtin.set_fact:
         vm_cfg:
@@ -7,7 +10,10 @@
           # For example talos-prod-worker-1 or talos-prod-controller-1
           name: "{{ talos_host_vm_name_prefix }}-{{ node_type }}-{{ idx + 1 }}"
           node: "{{ item.proxmox_node }}"
-          tags: "{{ ['k8s', 'prod', node_type] + ['bootstrap'] if idx == 0 and node_type == 'controller' else [] }}"
+          tags: "{{ ['k8s', 'prod', node_type] + (['bootstrap'] if idx == 0 and node_type == 'controller' else []) }}"
+          scsi: "{{ talos_host_scsi }}"
+          memory: "{{ talos_host_memory }}"
+
 
     - name: Append to list
       ansible.builtin.set_fact:

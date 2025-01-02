@@ -13,11 +13,6 @@ machine:
           - bind
           - rshared
           - rw
-  # Configures the node labels for the machine.
-  # Explicitly remove the "exclude-from-external-load-balancers" option
-  nodeLabels:
-    node.kubernetes.io/exclude-from-external-load-balancers:
-      $patch: delete
 
   # MachineDisks list example.
   disks:
@@ -28,18 +23,3 @@ machine:
 
   network:
     hostname: {{ inventory_hostname }}
-
-
-cluster:
-  # Disable coreDNS because it's configured manually later
-  coreDNS:
-    disabled: true
-    
-  # Allows running workload on control-plane nodes.
-  allowSchedulingOnControlPlanes: true
-
-  apiServer:
-    extraArgs:
-      oidc-issuer-url: {{ talos_oidc_issuer_url }}
-      oidc-client-id: {{ talos_oidc_client_id }}
-      oidc-groups-claim: {{ talos_oidc_groups_claim }}

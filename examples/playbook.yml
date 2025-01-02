@@ -47,7 +47,9 @@
       controller:
         - vm_id: 202
           proxmox_node: pve
-      worker: []
+      worker:
+        - vim_id: 203
+          proxmox_node: pve2
     # Change this if you like
     talos_host_vm_cpu: SandyBridge-IBRS
     # If you don't use a login task above, you can update these to the
@@ -83,15 +85,20 @@
 
     - role: javex.kubernetes.metallb
       tags: metallb
+      run_once: true
 
     - role: javex.kubernetes.coredns
       tags: coredns
+      run_once: true
 
     - role: javex.kubernetes.cert_manager
       tags: cert_manager
+      run_once: true
 
     - role: javex.kubernetes.traefik
       tags: traefik
+      run_once: true
 
     - role: javex.kubernetes.longhorn
       tags: longhorn
+      run_once: true

@@ -9,16 +9,14 @@
     vmid: "{{ item.vm_id }}"
     name: "{{ item.name }}"
     agent: true  # Use QEMU guest agent
-    memory: 4096
+    memory: "{{ item.memory }}"
     cpu: "{{ talos_host_vm_cpu }}"
     ostype: l26  # Linux 2.6 kernel
     cores: 2
     onboot: true  # Start on PVE boot
     ide:
       ide0: "local:iso/talos-metal-amd64.iso,media=cdrom"
-    scsi:
-      scsi0: "local-zfs:20,iothread=1,discard=on"
-      scsi1: "local-zfs:100,iothread=1,discard=on"
+    scsi: "{{ item.scsi }}"
     scsihw: virtio-scsi-single
     net:
       net0: virtio,bridge=vmbr0
