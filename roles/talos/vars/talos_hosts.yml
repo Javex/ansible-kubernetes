@@ -1,0 +1,3 @@
+talos_node_ips: "{{ groups['k8s'] | map('extract', hostvars, 'ansible_host') }}"
+talos_endpoint_ips: "{{ groups['controller'] | map('extract', hostvars, 'ansible_host') }}"
+talos_controlplane_ip: "{{ groups['bootstrap'] | map('extract', hostvars, 'ansible_host') | first }}"

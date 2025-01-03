@@ -11,12 +11,7 @@
       --output talosconfig
       --force
       {{ talos_cluster_name }}
-      https://{{ ansible_host }}:6443
-
-- name: Determine endpoint & node IPs
-  ansible.builtin.set_fact:
-    talos_node_ips: "{{ groups['k8s'] | map('extract', hostvars, 'ansible_host') }}"
-    talos_endpoint_ips: "{{ groups['controller'] | map('extract', hostvars, 'ansible_host') }}"
+      https://{{ talos_controlplane_ip }}:6443
 
 - name: Update talosconfig with endpoint IPs
   changed_when: false

@@ -1,3 +1,9 @@
+- name: Validate static IP for controller node
+  ansible.builtin.assert:
+    that:
+      - not talos_is_controller or talos_node_ip != ""
+    fail_msg: Must provide talos_node_ip for controller node
+
 - name: Create a directory to hold all files for this run
   ansible.builtin.file:
     state: directory
@@ -14,3 +20,6 @@
   ansible.builtin.set_fact:
     kubernetes_env_vars:
       K8S_AUTH_KUBECONFIG: "{{ talos_tmp_root.path }}/kubeconfig"
+
+- name: Include vars for talos host IPs
+  ansible.builtin.include_vars: talos_hosts.yml

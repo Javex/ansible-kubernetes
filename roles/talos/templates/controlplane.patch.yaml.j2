@@ -11,7 +11,18 @@ machine:
       $patch: delete
 
   network:
-    hostname: {{ inventory_hostname }}
+    hostname: {{ inventory_hostname }}.{{ talos_dns_domain }}
+
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: "{{ talos_network_device_mac | lower }}"
+        addresses:
+          - {{ talos_node_ip }}/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: {{ talos_node_gateway }}
+    nameservers: {{ talos_node_nameservers | to_yaml }}
+
 
 
 cluster:

@@ -48,3 +48,4 @@ compose:
     default()
   talos_is_controller: '"controller" in (proxmox_tags_parsed|default([]))'
   talos_is_bootstrap: '"bootstrap" in (proxmox_tags_parsed|default([]))'
+  talos_network_device_mac: proxmox_net0.virtio

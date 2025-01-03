@@ -38,3 +38,35 @@ Edit this file, too. Now run the playbook:
 ```bash
 ansible-playbook k8s.yml
 ```
+
+## Rolling out changes to nodes
+
+There are some config changes that can disrupt your cluster and by default this
+collection doesn't know what those are. As a result it's better to be careful:
+When using a new version, make sure you have an `etcd` snapshot, but also update
+each node one-by-one, ideally by first draining it. For workers this is fairly
+simple: Follow [How to scale down a Talos cluster](https://www.talos.dev/v1.9/talos-guides/howto/scaling-down/).
+Potentially, you might  want to also tell Longhorn to drain the node for storage
+(via the UI). Once a node has been removed from the cluster, you can delete it
+from Proxmox and let the playbook create a new one. To ensure any changed config
+only ever applies to one node, you can specify the `talos_node_filter` variable.
+If this variable is set, it will only apply the `talos` role to the node with
+that name, for example `talos-prod-worker-1`. Here's what that looks like, for
+example:
+
+```bash
+ansible-playbook k8s.yml --extra-vars=talos_node_filter=talos-prod-worker-1
+```
+
+If the node you are trying to replace is a controller node, make sure your
+cluster remains in a healthy condition: If running in HA mode, do it one at a
+time. If not in HA, create a second controller to join the cluster, then remove
+the first one as a member using `talosctl etcd remove-member`.
+
+In summary:
+
+* If controller, remove from etcd
+* Scale down node to remove it from cluster
+* Delete VM in Proxmox
+* Run playbook with node filter
+* Repeat for next node

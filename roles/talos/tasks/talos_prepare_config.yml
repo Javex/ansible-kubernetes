@@ -3,7 +3,7 @@
 
 - name: Include tasks for talosconfig file
   ansible.builtin.include_tasks: talosconfig.yml
-  when: talos_is_bootstrap
+  run_once: true
 
 - name: Include tasks for control plane config
   ansible.builtin.include_tasks: talos_prepare_controlplane.yml

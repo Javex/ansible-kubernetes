@@ -22,4 +22,4 @@ machine:
         - mountpoint: /var/lib/longhorn # Where to mount the partition.
 
   network:
-    hostname: {{ inventory_hostname }}
+    hostname: {{ inventory_hostname }}.{{ talos_dns_domain }}

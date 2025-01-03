@@ -15,6 +15,25 @@ dns_ips:
 # Talos
 #
 talos_cluster_ip: "{{ cluster_ip }}"
+# Domain under which all hosts should exist. Creates a hostname such as
+# "talos-prod-controller-1.example.com"
+talos_dns_domain: "example.com"
+# A list of DNS servers
+# These should ideally be replaced with internal name servers to resolve the
+# coredns domains below.
+talos_node_nameservers:
+  - 1.1.1.1
+  - 8.8.8.8
+# Map node names to static IPs for controllers. Adjust the names to the one that
+# get assigned to each VM by the talos_host role
+controller_static_ips:
+  talos-prod-controller-1: 192.168.1.10
+# Automatically determine the static IP of the host this play is currently
+# running for. This can't just be ansible_host, because the node starts out with
+# the wrong IP (DHCP-assigned) and only picks its static IP after.
+talos_node_ip: "{{ controller_static_ips[inventory_hostname] | default('') }}"
+# Gateway (default route target)
+talos_node_gateway: 192.168.1.1
 talos_ctl_version: v1.9.0
 talos_image_id: 88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b
 talos_image_version: 1.8.4
