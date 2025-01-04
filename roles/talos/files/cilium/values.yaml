@@ -1,0 +1,46 @@
+ipam:
+  mode: kubernetes
+
+# https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free
+kubeProxyReplacement: true
+k8sServiceHost: localhost
+k8sServicePort: 7445
+
+envoy:
+  enabled: false
+
+# See https://github.com/siderolabs/talos/pull/9200
+# and https://www.talos.dev/v1.8/kubernetes-guides/network/deploying-cilium/#known-issues
+# Should be the default, but better safe than sorry.
+bpf:
+  masquerade: false
+
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true

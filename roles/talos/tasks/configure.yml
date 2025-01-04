@@ -17,3 +17,7 @@
 - name: Include tasks to prepare kubeconfig file
   ansible.builtin.include_tasks: kubernetes_kubeconfig.yml
   when: talos_is_bootstrap
+
+- name: Include tasks to install Cilium
+  ansible.builtin.include_tasks: cilium.yml
+  run_once: true

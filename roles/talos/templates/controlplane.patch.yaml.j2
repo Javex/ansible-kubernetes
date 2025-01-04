@@ -35,3 +35,12 @@ cluster:
       oidc-issuer-url: {{ talos_oidc_issuer_url }}
       oidc-client-id: {{ talos_oidc_client_id }}
       oidc-groups-claim: {{ talos_oidc_groups_claim }}
+
+  # Use Cilium instead of default CNI
+  network:
+    cni:
+      name: none
+
+  # Disable kube-proxy and use Cilium's version
+  proxy:
+    disabled: true
