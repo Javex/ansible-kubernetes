@@ -1,2 +1,3 @@
 # If set, only apply configuration to host with this name as "invenotry_hostname"
 talos_node_filter: ""
+talos_is_controller: false
