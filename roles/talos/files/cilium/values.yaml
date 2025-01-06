@@ -9,6 +9,12 @@ k8sServicePort: 7445
 envoy:
   enabled: false
 
+# https://docs.cilium.io/en/latest/security/network/encryption-wireguard/
+encryption:
+  enabled: true
+  type: wireguard
+  nodeEncryption: true
+
 # See https://github.com/siderolabs/talos/pull/9200
 # and https://www.talos.dev/v1.8/kubernetes-guides/network/deploying-cilium/#known-issues
 # Should be the default, but better safe than sorry.
