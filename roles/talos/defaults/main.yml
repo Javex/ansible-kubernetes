@@ -1,3 +1,6 @@
 # If set, only apply configuration to host with this name as "invenotry_hostname"
 talos_node_filter: ""
 talos_is_controller: false
+# If set, must be valid snapshot to recover etcd. The bootstrap step will be run
+# with this file as the --recover-from argument
+talos_etcd_recovery_snapshot: false

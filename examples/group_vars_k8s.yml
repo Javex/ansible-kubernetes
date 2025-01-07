@@ -46,6 +46,37 @@ talos_oidc_client_id: client ID
 # The name of the claim that contains a list of groups a user belongs to
 talos_oidc_groups_claim: groups
 
+#
+# etcd backup using restic
+#
+# Backing up your etcd database regularly is important so this playbook does it
+# automatically for you. See README for details on how to test the restore
+# process. Make sure also check the README for *one manual step* after the
+# playbook has finished running: You need to initialise the restic repository.
+#
+# Access Key ID for S3 bucket (or equivalent, e.g. Backblaze B2)
+talos_etcd_backup_s3_access_key_id: "CHANGEME"
+# Secret Access Key for S3 bucket
+talos_etcd_backup_s3_secret_access_key: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  383...239
+# A restic repo secret, pick a random, long string to encrypt the repo. Note
+# that you must keep this safe or your backups will be lost so make sure you
+# have this backed/stored properly.
+talos_etcd_backup_restic_repo_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  6435...636
+# S3 (or equivalent) URL to bucket. DO NOT add restic's "s3:" prefix, just
+# provide the URL.
+talos_etcd_backup_s3_url: s3.<region>.backblazeb2.com/<bucket-name>
+# A URL to a Prometheus Pushgateway so restricprofile can publish metrics for
+# monitoring backups. Adjust as needed.
+talos_etcd_backup_prometheus_pushgateway_url: http://prometheus-prometheus-pushgateway.monitoring.svc.cluster.local:9091/
+# An absolute path to an etcd snapshot to restore the cluster from. Usually this
+# should be disabled, see README on when to use it and how. Note the path must
+# be absolute since the playbook will change into a different directory.
+#talos_etcd_recovery_snapshot: ""
+
 # Will put talos & kube config under this directory
 talos_tmp_base_path: "{{ tmp_path }}"
 # Relative path to a file that contains the output of

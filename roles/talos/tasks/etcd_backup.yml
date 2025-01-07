@@ -1,0 +1,22 @@
+# From: https://alexlubbock.com/encrypted-backup-talos-etcd-aws-s3
+# Source Code: https://github.com/alubbock/talos-etcd-backup
+- name: Create Secret
+  no_log: true
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'etcd-backup-secret.yaml.j2') | from_yaml }}"
+
+- name: Create Service Account
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'etcd-backup-service-account.yaml') | from_yaml }}"
+
+- name: Create ConfigMap
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'etcd-backup-configmap.yaml.j2') | from_yaml }}"
+
+- name: Create CronJob
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'etcd-backup-cronjob.yaml.j2') | from_yaml }}"
+
+- name: Create prune CronJob
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'etcd-backup-cronjob-prune.yaml') | from_yaml }}"

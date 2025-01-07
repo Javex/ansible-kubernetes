@@ -23,6 +23,14 @@ machine:
             gateway: {{ talos_node_gateway }}
     nameservers: {{ talos_node_nameservers | to_yaml }}
 
+  features:
+    kubernetesTalosAPIAccess:
+      enabled: true
+      allowedRoles:
+        - os:etcd:backup
+      allowedKubernetesNamespaces:
+        - kube-system
+
 
 
 cluster:

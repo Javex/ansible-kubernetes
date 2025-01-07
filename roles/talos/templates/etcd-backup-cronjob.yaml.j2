@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup
+  namespace: kube-system
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "12 4 * * *"  # Change me if needed (04:12 daily)
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          - name: talosctl
+            image: ghcr.io/siderolabs/talosctl:v{{ talos_image_version }}
+            args:
+              - -n
+              - "$(CP_NODE_IP)"
+              - etcd
+              - snapshot
+              - /data/etcd.snapshot
+            env:
+              - name: CP_NODE_IP
+                value: "{{ talos_controlplane_ip }}"
+            volumeMounts:
+              - name: talos-secrets
+                mountPath: /var/run/secrets/talos.dev
+              - name: backupdata
+                mountPath: /data
+          containers:
+          - name: restic
+            image: creativeprojects/resticprofile:0.29.0
+            workingDir: /data
+            args:
+              - etcd.backup
+            env:
+              - name: RESTIC_REPOSITORY
+                valueFrom:
+                  secretKeyRef:
+                    name: talos-etcd-backup
+                    key: bucketName
+                    optional: false
+              - name: RESTIC_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: talos-etcd-backup
+                    key: resticKey
+                    optional: false
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: talos-etcd-backup
+                    key: accessKeyId
+                    optional: false
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: talos-etcd-backup
+                    key: secretAccessKey
+                    optional: false
+            volumeMounts:
+              - name: backupdata
+                mountPath: /data
+                readOnly: true
+              - mountPath: /etc/restic/
+                name: restic-cfg
+                readOnly: true
+              - mountPath: /var/cache/restic
+                name: restic-cache
+          volumes:
+            - name: backupdata
+              emptydir: {}
+            - name: restic-cache
+              emptydir: {}
+            - name: talos-secrets
+              secret:
+                secretName: etcd-backup-talos-secrets
+            - name: restic-cfg
+              configMap:
+                name: etcd-backup-resticprofile
+                defaultMode: 0775
+          restartPolicy: OnFailure

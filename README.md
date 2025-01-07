@@ -70,3 +70,70 @@ In summary:
 * Delete VM in Proxmox
 * Run playbook with node filter
 * Repeat for next node
+
+# Backup & Restore
+
+This playbook automatically configures regular etcd snapshot backups to S3 using
+restic. These backups are end-to-end encrypted with a passphrase you control.
+Configure the variables with the right values before running the playbook. There
+is currently no option to disable backups.
+
+The backup solution is based on [this blog post](https://alexlubbock.com/encrypted-backup-talos-etcd-aws-s3)
+and [repo](https://github.com/alubbock/talos-etcd-backup). It explains the setup
+in more details.
+
+## Repo Init
+
+After the playbook has finished running you need to initialise the restic repo
+manually. To do this, export environment variables:
+
+```bash
+export RESTIC_PASSWORD='...'
+export AWS_SECRET_ACCESS_KEY='...'
+export AWS_ACCESS_KEY_ID='...'
+export RESTIC_REPOSITORY='s3:'
+```
+
+Take these values from the playbook. Note that here you **do** need the `s3:`
+prefix for the bucket. Once you have all variables set run:
+
+```bash
+restic init
+```
+
+That should show that the repo has been initialised. Now backups should work
+which you can test with the following command:
+
+```bash
+kubectl -n kube-system create job --from=cronjob/etcd-backup etcd-backup-first
+```
+
+See the [blog post](https://alexlubbock.com/encrypted-backup-talos-etcd-aws-s3)
+for more details. Once you have confirmed that you have a backup, it's time to
+test the restore process.
+
+## Restore
+
+Most importantly: You should test that restoring from backup works. These
+instructions will also help in case you need to restore for real. Refer to
+[Talos Disaster Recovery](https://www.talos.dev/v1.9/advanced/disaster-recovery/)
+for more details. The steps below are specific to this playbook.
+
+* Download a backup onto your system: `restic restore latest --target tmp/etcd-restore`
+* Check that there is a `etcd.snapshot` file in the `tmp/etcd-restore` folder
+* Go into Proxmox and take a snapshot of every VM in case the restore process
+  fails. You can roll back the entire cluster. At least take a snapshot of the
+  control plane nodes.
+* Stop all control plane nodes in Proxmox. Use "Stop" not "Shutdown" to simulate
+  spontaneous hardware failure.
+* Remove all tags from the stopped nodes to exclude them from the playbook
+  without deleting them.
+* Rename the nodes to something like "backup-talos-prod-controller-1" etc.
+* Set the `talos_etcd_recovery_snapshot` variable in `group_vars/k8s.yml` to the
+  **absolute** path of the snapshot (find it with `readlink -f`) if you're not
+  sure.
+* Run the playbook again. If it fails run it again, provisioning with a static
+  IP address can cause the run to fail.
+
+It should complete successfully and `kubectl get nodes` should report all nodes
+as ready. Congratulations, you've restored from backup!

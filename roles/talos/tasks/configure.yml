@@ -21,3 +21,7 @@
 - name: Include tasks to install Cilium
   ansible.builtin.include_tasks: cilium.yml
   run_once: true
+
+- name: Include tasks to create etcd backup CronJob
+  ansible.builtin.include_tasks: etcd_backup.yml
+  run_once: true

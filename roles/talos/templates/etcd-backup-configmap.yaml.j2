@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: etcd-backup-resticprofile
+  namespace: kube-system
+data:
+  profiles.yaml: |
+    version: "1"
+
+    etcd:
+      cache-dir: /var/cache/restic
+      prometheus-push: "{{ talos_etcd_backup_prometheus_pushgateway_url }}"
+      backup:
+        source: ["."]
+        host: "kubernetes"
+        # This is necessary to save the metrics in prometheus files
+        extended-status: true

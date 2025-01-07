@@ -2,11 +2,22 @@
   ansible.builtin.include_tasks: etcd_status.yml
 
 - name: Run bootstrap command
-  when: talos_etcd_status == 'Preparing' and talos_is_bootstrap
+  when: talos_etcd_status == 'Preparing' and talos_is_bootstrap and not talos_etcd_recovery_snapshot
   ansible.builtin.command:
     chdir: "{{ talos_tmp_root.path }}"
     cmd: >
       ./talosctl
       --talosconfig talosconfig
       --nodes {{ ansible_host }}
+      bootstrap
+
+- name: Recover etcd cluster
+  when: talos_etcd_status == 'Preparing' and talos_is_bootstrap and talos_etcd_recovery_snapshot
+  ansible.builtin.command:
+    chdir: "{{ talos_tmp_root.path }}"
+    cmd: >
+      ./talosctl
+      --talosconfig talosconfig
+      --nodes {{ ansible_host }}
+      --recover-from="{{ talos_etcd_recovery_snapshot }}"
       bootstrap
