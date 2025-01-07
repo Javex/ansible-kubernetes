@@ -65,6 +65,8 @@
   # These hosts are Talos VMs that don't have SSH. Don't gather facts, as
   # everything is delegated to localhost
   gather_facts: false
+  # Immediately stop running if any node experiences an issue
+  any_errors_fatal: true
 
   pre_tasks:
     - name: Determine current working directory
