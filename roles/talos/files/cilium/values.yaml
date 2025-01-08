@@ -45,8 +45,19 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 
+
 hubble:
   relay:
     enabled: true
   ui:
+    enabled: true
+  metrics:
+    enabled:
+      - flow
+
+    dashboards:
+      enabled: true
+
+operator:
+  dashboards:
     enabled: true
