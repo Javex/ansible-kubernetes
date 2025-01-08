@@ -10,3 +10,7 @@
     release_namespace: kube-system
     create_namespace: true
     values: "{{ lookup('template', 'values.yaml.j2') | from_yaml }}"
+
+- name: Add network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'clusterwide-network-policy.yaml') | from_yaml }}"

@@ -7,6 +7,14 @@
   kubernetes.core.k8s:
     definition: "{{ lookup('file', 'namespace.yaml') | from_yaml }}"
 
+- name: Add network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'network-policy-namespace.yaml') | from_yaml }}"
+
+- name: Add cluster wide network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'clusterwide-network-policy-healthcheck.yaml') | from_yaml }}"
+
 - name: Install Longhorn from Helm chart
   kubernetes.core.helm:
     name: longhorn

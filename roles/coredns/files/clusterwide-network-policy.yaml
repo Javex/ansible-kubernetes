@@ -1,0 +1,19 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: "coredns-allow-all"
+spec:
+  description: "Policy for ingress allow to coredns from all Cilium managed endpoints in the cluster"
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: kube-system
+      k8s-app: coredns
+  ingress:
+  - fromEndpoints:
+    - {}
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+  - fromEntities:
+    - world

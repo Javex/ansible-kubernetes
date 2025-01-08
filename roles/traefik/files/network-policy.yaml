@@ -1,0 +1,12 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "traefik-ingress"
+  namespace: traefik
+spec:
+  description: "Traefik world ingress"
+  endpointSelector:
+    matchLabels: {}
+  ingress:
+  - fromEntities:
+    - world

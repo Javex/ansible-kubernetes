@@ -11,6 +11,10 @@
     create_namespace: true
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
 
+- name: Add network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'network-policy.yaml') | from_yaml }}"
+
 - name: Add Certificate resource for traefik to terminate TLS
   kubernetes.core.k8s:
     definition: "{{ lookup('template', 'certificate.yaml.j2') | from_yaml }}"

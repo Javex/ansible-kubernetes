@@ -11,3 +11,7 @@
     release_namespace: kube-system
     values: "{{ lookup('file', 'cilium/values.yaml') | from_yaml }}"
     wait: true
+
+- name: Add cluster-wide network policy to allow healthchecks
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'cilium/clusterwide-network-policy-node-healthcheck.yaml') |from_yaml }}"

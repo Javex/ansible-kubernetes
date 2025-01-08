@@ -1,0 +1,12 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: "allow-longhorn"
+spec:
+  description: "Allow node healthchecks"
+  endpointSelector:
+    matchLabels:
+      k8s:io.kubernetes.pod.namespace: longhorn-system
+  ingress:
+  - fromEntities:
+    - remote-node
