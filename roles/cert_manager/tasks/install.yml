@@ -19,6 +19,13 @@
   kubernetes.core.k8s:
     template: secret.cloudflare-api-token.yaml.j2
 
+- name: Create network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', item) | from_yaml }}"
+  loop:
+    - network-policy-namespace.yaml
+    - network-policy-remote-node.yaml
+
 - name: Create ClusterIssuer
   kubernetes.core.k8s:
     definition: "{{ lookup('template', item) }}"
