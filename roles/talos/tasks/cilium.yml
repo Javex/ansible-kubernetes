@@ -15,3 +15,7 @@
 - name: Add cluster-wide network policy to allow healthchecks
   kubernetes.core.k8s:
     definition: "{{ lookup('file', 'cilium/clusterwide-network-policy-node-healthcheck.yaml') |from_yaml }}"
+
+- name: Add network policy to allow namespace traffic
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'cilium/network-policy-namespace.yaml') |from_yaml }}"
