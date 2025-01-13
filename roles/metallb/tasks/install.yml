@@ -14,6 +14,14 @@
     release_namespace: metallb-system
     wait: true
 
+- name: Create network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'network-policy-namespace.yaml') | from_yaml }}"
+
+- name: Create network policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('file', 'network-policy-remote-node.yaml') | from_yaml }}"
+
 - name: Create IPAddressPool
   kubernetes.core.k8s:
     template: ipaddresspool.yaml.j2

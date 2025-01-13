@@ -1,0 +1,13 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "metallb-system-namespace"
+  namespace: metallb-system
+spec:
+  description: "Allow metallb-system namespace traffic"
+  endpointSelector:
+    matchLabels: {}
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        {}
