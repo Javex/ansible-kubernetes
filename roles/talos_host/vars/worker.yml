@@ -1,4 +1,6 @@
 talos_host_memory: "{{ talos_host_worker_memory }}"
 talos_host_scsi:
-    scsi0: "local-zfs:20,iothread=1,discard=on"
-    scsi1: "local-zfs:100,iothread=1,discard=on"
+  - name: scsi0
+    size: 20
+  - name: scsi1
+    size: 100

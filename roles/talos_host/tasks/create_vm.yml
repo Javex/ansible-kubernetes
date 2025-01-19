@@ -16,7 +16,6 @@
     onboot: true  # Start on PVE boot
     ide:
       ide0: "local:iso/talos-metal-amd64.iso,media=cdrom"
-    scsi: "{{ item.scsi }}"
     scsihw: virtio-scsi-single
     net:
       net0: virtio,bridge=vmbr0
@@ -38,6 +37,12 @@
     bridge: vmbr0
     tag: "{{ item.vlan_tag }}"
   when: item.vlan_tag
+
+- name: Include tasks for disks
+  ansible.builtin.include_tasks: disks.yml
+  loop: "{{ talos_host_vms }}"
+  loop_control:
+    loop_var: vm
 
 - name: Start the VM
   loop: "{{ talos_host_vms }}"

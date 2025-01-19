@@ -1,0 +1,16 @@
+- name: Attach an extra disk to each node
+  loop: "{{ vm.disks }}"
+  loop_control:
+    loop_var: disk
+  community.general.proxmox_disk:
+    api_user: "{{ talos_host_proxmox_user }}"
+    api_token_id: "{{ talos_host_proxmox_token_id }}"
+    api_token_secret: "{{ talos_host_proxmox_token_secret }}"
+    api_host: "{{ talos_host_proxmox_host }}"
+    vmid: "{{ vm.vm_id }}"
+    disk: "{{ disk.name }}"
+    storage: local-zfs
+    size: "{{ disk.size }}"
+    discard: "on"
+    iothread: true
+    state: present

@@ -1,3 +1,4 @@
 talos_host_memory: "{{ talos_host_controller_memory }}"
 talos_host_scsi:
-    scsi0: "local-zfs:20,iothread=1,discard=on"
+  - name: scsi0
+    size: 20
