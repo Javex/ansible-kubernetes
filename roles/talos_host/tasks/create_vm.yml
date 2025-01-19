@@ -12,7 +12,7 @@
     memory: "{{ item.memory }}"
     cpu: "{{ talos_host_vm_cpu }}"
     ostype: l26  # Linux 2.6 kernel
-    cores: 2
+    cores: 4
     onboot: true  # Start on PVE boot
     ide:
       ide0: "local:iso/talos-metal-amd64.iso,media=cdrom"
