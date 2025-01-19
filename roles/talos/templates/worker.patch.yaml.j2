@@ -23,3 +23,11 @@ machine:
 
   network:
     hostname: {{ inventory_hostname }}.{{ talos_dns_domain }}
+
+cluster:
+  network:
+    # Default Talos CIDRs, hardcoded for stability
+    podSubnets:
+      - 10.244.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/12

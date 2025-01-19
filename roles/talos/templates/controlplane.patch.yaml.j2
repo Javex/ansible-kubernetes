@@ -44,8 +44,13 @@ cluster:
       oidc-client-id: {{ talos_oidc_client_id }}
       oidc-groups-claim: {{ talos_oidc_groups_claim }}
 
-  # Use Cilium instead of default CNI
   network:
+    # Default Talos CIDRs, hardcoded for stability
+    podSubnets:
+      - 10.244.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/12
+    # Use Cilium instead of default CNI
     cni:
       name: none
 
