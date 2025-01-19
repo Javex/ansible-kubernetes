@@ -4,6 +4,8 @@
     repo_url: https://helm.cilium.io/
 
 - name: Install Cilium from Helm chart
+  environment:
+    HELM_DIFF_USE_INSECURE_SERVER_SIDE_DRY_RUN: "true"
   kubernetes.core.helm:
     name: cilium
     chart_ref: cilium/cilium
