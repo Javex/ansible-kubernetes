@@ -59,6 +59,10 @@
     talos_host_proxmox_token_id: "{{ proxmox.token_id }}"
     talos_host_proxmox_token_secret: "{{ proxmox.secret }}"
     talos_host_proxmox_host: "{{ proxmox.host }}"
+    # Set a VLAN tag for a secondary interface. Traffic on this VLAN tag will
+    # be sent to this interface with the tag stripped. Allows creating a
+    # private VLAN between VMs.
+    talos_host_vlan_tag: 20
 
 - name: Configure Talos nodes
   hosts: k8s

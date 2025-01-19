@@ -13,6 +13,7 @@
           tags: "{{ ['k8s', 'prod', node_type] + (['bootstrap'] if idx == 0 and node_type == 'controller' else []) }}"
           scsi: "{{ talos_host_scsi }}"
           memory: "{{ talos_host_memory }}"
+          vlan_tag: "{{ talos_host_vlan_tag }}"
 
 
     - name: Append to list

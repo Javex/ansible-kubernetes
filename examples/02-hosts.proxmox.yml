@@ -49,3 +49,7 @@ compose:
   talos_is_controller: '"controller" in (proxmox_tags_parsed|default([]))'
   talos_is_bootstrap: '"bootstrap" in (proxmox_tags_parsed|default([]))'
   talos_network_device_mac: proxmox_net0.virtio
+  # If a secondary network interface was created for VLAN traffic, this is its
+  # name. The address is needed to assign a static IP to it during the playbook
+  # run.
+  talos_network_device_vlan_mac: proxmox_net1.virtio | default('')

@@ -4,6 +4,11 @@ machine:
     clusterDNS:
       - {{ talos_cluster_ip }}
 
+    # Set NodeIP to ensure multihomed nodes work
+    nodeIP:
+      validSubnets:
+        - {{ talos_node_subnet }}
+
     extraMounts:
       - destination: /var/lib/longhorn # Destination is the absolute path where the mount will be placed in the container.
         type: bind # Type specifies the mount kind.
@@ -23,6 +28,14 @@ machine:
 
   network:
     hostname: {{ inventory_hostname }}.{{ talos_dns_domain }}
+
+    {% if talos_node_vlan_ip and talos_network_device_vlan_mac -%}
+    interfaces:
+      - deviceSelector:
+          hardwareAddr: "{{ talos_network_device_vlan_mac | lower }}"
+        addresses:
+          - {{ talos_node_vlan_ip }}/24
+    {%- endif %}
 
 cluster:
   network:

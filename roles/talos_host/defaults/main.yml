@@ -1,5 +1,9 @@
 talos_host_vm_name_prefix: talos-prod
 
+# Supply a VLAN tag to add a second interface to each VM that only receives
+# traffic for this VLAN tag
+talos_host_vlan_tag: false
+
 # Controller Defaults
 talos_host_controller_memory: 2048
 

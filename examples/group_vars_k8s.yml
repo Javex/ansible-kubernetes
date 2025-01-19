@@ -34,6 +34,20 @@ controller_static_ips:
 talos_node_ip: "{{ controller_static_ips[inventory_hostname] | default('') }}"
 # Gateway (default route target)
 talos_node_gateway: 192.168.1.1
+# Subnet where all nodes will receive their IP from, either dynamically or
+# statically. Used to ensure multihomed nodes pick the right path for t he
+# kubelet and etcd.
+# See https://www.talos.dev/v1.9/introduction/prodnotes/#multihoming
+talos_node_subnet: 192.168.1.0/24
+# Mapping of static IPs from node name to IP for a secondary VLAN. Since there
+# isn't DHCP on this subnet, all IPs must be static, not just the control
+# plane.
+vlan_ips:
+  talos-prod-controller-1: 10.0.20.14
+  talos-prod-worker-1: 10.0.20.60
+  talos-prod-worker-2: 10.0.20.61
+# Picks the node's correct IP address from the dictionary above
+talos_node_vlan_ip: "{{ vlan_ips[inventory_hostname] | default('') }}"
 talos_ctl_version: v1.9.0
 talos_image_id: 88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b
 talos_image_version: 1.8.4

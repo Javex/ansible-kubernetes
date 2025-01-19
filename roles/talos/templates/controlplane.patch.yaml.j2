@@ -4,6 +4,11 @@ machine:
     clusterDNS:
       - {{ talos_cluster_ip }}
 
+    # Set nodeIP to ensure multihomed nodes work
+    nodeIP:
+      validSubnets:
+        - {{ talos_node_subnet }}
+
   # Configures the node labels for the machine.
   # Explicitly remove the "exclude-from-external-load-balancers" option
   nodeLabels:
@@ -21,6 +26,12 @@ machine:
         routes:
           - network: 0.0.0.0/0
             gateway: {{ talos_node_gateway }}
+      {% if talos_node_vlan_ip and talos_network_device_vlan_mac -%}
+      - deviceSelector:
+          hardwareAddr: "{{ talos_network_device_vlan_mac | lower }}"
+        addresses:
+          - {{ talos_node_vlan_ip }}/24
+    {% endif -%}
     nameservers: {{ talos_node_nameservers | to_yaml }}
 
   features:
@@ -57,3 +68,8 @@ cluster:
   # Disable kube-proxy and use Cilium's version
   proxy:
     disabled: true
+
+  etcd:
+    # Set advertisedSubnets to ensure multihomed nodes work
+    advertisedSubnets:
+      - {{ talos_node_subnet }}
