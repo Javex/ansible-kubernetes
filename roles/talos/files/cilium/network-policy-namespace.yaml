@@ -11,3 +11,5 @@ spec:
   - fromEndpoints:
     - matchLabels:
         {}
+  - fromEntities:
+    - remote-node
